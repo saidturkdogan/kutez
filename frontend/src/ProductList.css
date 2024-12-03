@@ -1,0 +1,155 @@
+/* ProductList.css */
+.product-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Yatay merkezleme */
+    justify-content: center;
+    /* Dikey merkezleme */
+    min-height: 100vh;
+    /* Sayfanın tamamını kapsaması */
+    margin: 0;
+    padding: 20px;
+    /* Sayfa içeriğine boşluk */
+}
+
+.product-list-title {
+    margin-bottom: 20px;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.product-container {
+    display: flex;
+    gap: 20px;
+    /* Ürünler arasındaki boşluk */
+    overflow-x: auto;
+    /* Yatay kaydırma */
+    white-space: nowrap;
+    /* Ürünlerin yan yana sıralı kalması */
+    padding-bottom: 10px;
+    /* Kaydırma çubuğu için alan */
+    max-width: 80%;
+    /* Konteyner genişliğini sınırla */
+}
+
+.product-card {
+    flex-shrink: 0;
+    /* Kartların boyutunun küçülmesini engeller */
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    width: 250px;
+    /* Kart genişliği */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.product-container::-webkit-scrollbar {
+    height: 8px;
+    /* Kaydırma çubuğu yüksekliği */
+}
+
+.product-container::-webkit-scrollbar-thumb {
+    background-color: #888;
+    /* Kaydırma çubuğu rengi */
+    border-radius: 4px;
+}
+
+.product-container::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+    /* Kaydırma çubuğu üzerine gelindiğinde renk değişimi */
+}
+
+
+
+.product-image {
+    width: 100%;
+    /* Görüntünün kart genişliğini kaplaması */
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.product-title {
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+.product-price {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.product-colors {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    /* Renk seçimi için boşluk */
+    margin: 10px 0;
+}
+
+.color-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.color-circle.yellow {
+    background-color: yellow;
+}
+
+.color-circle.gray {
+    background-color: gray;
+}
+
+.color-circle.pink {
+    background-color: pink;
+}
+
+.color-circle.selected {
+    border: 2px solid #000;
+    /* Seçilen renk için vurgulama */
+}
+
+.product-metal {
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.product-rating {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #f39c12;
+}
+
+.navigation {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 90%;
+    position: relative;
+}
+
+.nav-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.nav-button:hover {
+    background-color: #0056b3;
+}
