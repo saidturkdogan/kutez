@@ -1,115 +1,60 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './ProductList.css';
 
-// Ürün verisi için tip tanımlaması
 interface Product {
     id: number;
-    title: string;
-    price: number;
-    rating: number;
+    name: string;
+    popularityScore: number;
+    weight: number;
     images: {
         yellow: string;
-        gray: string;
-        pink: string;
+        rose: string;
+        white: string;
     };
+    calculatedPrice?: number;
 }
 
-// Örnek ürün verisi
-const products: Product[] = [
-    {
-        id: 1,
-        title: 'Product Title',
-        price: 101,
-        rating: 4.5,
-        images: {
-            yellow: 'https://cdn.shopify.com/s/files/1/0484/1429/4167/files/EG085-100P-Y.jpg?v=1696588368',
-            gray: 'https://cdn.shopify.com/s/files/1/0484/1429/4167/files/EG085-100P-W.jpg?v=1696588402',
-            pink: 'https://cdn.shopify.com/s/files/1/0484/1429/4167/files/EG085-100P-R.jpg?v=1696588406',
-        },
-    },
-    {
-        id: 2,
-        title: 'Product Title',
-        price: 101,
-        rating: 2.5,
-        images: {
-            yellow: 'https://example.com/image-yellow2.jpg',
-            gray: 'https://example.com/image-gray2.jpg',
-            pink: 'https://example.com/image-pink2.jpg',
-        },
-    },
-    {
-        id: 3,
-        title: 'Product Title',
-        price: 101,
-        rating: 2.5,
-        images: {
-            yellow: 'https://example.com/image-yellow2.jpg',
-            gray: 'https://example.com/image-gray2.jpg',
-            pink: 'https://example.com/image-pink2.jpg',
-        },
-    },
-    {
-        id: 3,
-        title: 'Product Title',
-        price: 101,
-        rating: 2.5,
-        images: {
-            yellow: 'https://example.com/image-yellow2.jpg',
-            gray: 'https://example.com/image-gray2.jpg',
-            pink: 'https://example.com/image-pink2.jpg',
-        },
-    },
-    {
-        id: 3,
-        title: 'Product Title',
-        price: 101,
-        rating: 2.5,
-        images: {
-            yellow: 'https://example.com/image-yellow2.jpg',
-            gray: 'https://example.com/image-gray2.jpg',
-            pink: 'https://example.com/image-pink2.jpg',
-        },
-    },
-    {
-        id: 3,
-        title: 'Product Title',
-        price: 101,
-        rating: 2.5,
-        images: {
-            yellow: 'https://example.com/image-yellow2.jpg',
-            gray: 'https://example.com/image-gray2.jpg',
-            pink: 'https://example.com/image-pink2.jpg',
-        },
-    },
-    {
-        id: 3,
-        title: 'Product Title',
-        price: 101,
-        rating: 2.5,
-        images: {
-            yellow: 'https://example.com/image-yellow2.jpg',
-            gray: 'https://example.com/image-gray2.jpg',
-            pink: 'https://example.com/image-pink2.jpg',
-        },
-    },
-    {
-        id: 3,
-        title: 'Product Title',
-        price: 101,
-        rating: 2.5,
-        images: {
-            yellow: 'https://example.com/image-yellow2.jpg',
-            gray: 'https://example.com/image-gray2.jpg',
-            pink: 'https://example.com/image-pink2.jpg',
-        },
-    },
-    // Diğer ürünler...
-];
+interface PriceResponse {
+    prices: {
+        name: string;
+        calculatedPrice: number;
+    }[];
+}
 
 const ProductList: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const [products, setProducts] = useState<Product[]>([]);
     const [selectedColors, setSelectedColors] = useState<{ [key: number]: keyof Product['images'] }>({});
+
+    // Backend'den veri çekme
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [productsResponse, pricesResponse] = await Promise.all([
+                    fetch('http://localhost:3000/api/products'),
+                    fetch('http://localhost:3000/api/calculateprice')
+                ]);
+
+                const productsData = await productsResponse.json();
+                const pricesData: PriceResponse = await pricesResponse.json();
+
+                const productsWithIdAndPrice = productsData.map((product: Omit<Product, 'id'>, index: number) => {
+                    const matchingPrice = pricesData.prices.find(price => price.name === product.name);
+                    return {
+                        ...product,
+                        id: index + 1,
+                        calculatedPrice: matchingPrice?.calculatedPrice
+                    };
+                });
+
+                setProducts(productsWithIdAndPrice);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const handleColorClick = (productId: number, color: keyof Product['images']) => {
         setSelectedColors((prev) => ({ ...prev, [productId]: color }));
@@ -136,16 +81,21 @@ const ProductList: React.FC = () => {
                 </button>
                 <div ref={containerRef} className="product-container">
                     {products.map((product) => {
-                        const selectedColor = selectedColors[product.id] || 'yellow'; // Varsayılan renk
+                        const selectedColor = selectedColors[product.id] || 'yellow';
+                        const rating = Math.round((product.popularityScore / 20) * 2) / 2;
                         return (
                             <div key={product.id} className="product-card">
                                 <img
                                     src={product.images[selectedColor]}
-                                    alt={product.title}
+                                    alt={product.name}
                                     className="product-image"
                                 />
-                                <h2 className="product-title">{product.title}</h2>
-                                <p className="product-price">${product.price.toFixed(2)} USD</p>
+                                <h2 className="product-title">{product.name}</h2>
+                                {product.calculatedPrice && (
+                                    <p className="product-price">
+                                        ${product.calculatedPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </p>
+                                )}
                                 <div className="product-colors">
                                     <span
                                         className={`color-circle yellow ${selectedColor === 'yellow' ? 'selected' : ''}`}
@@ -154,22 +104,22 @@ const ProductList: React.FC = () => {
                                         onClick={() => handleColorClick(product.id, 'yellow')}
                                     />
                                     <span
-                                        className={`color-circle gray ${selectedColor === 'gray' ? 'selected' : ''}`}
+                                        className={`color-circle gray ${selectedColor === 'white' ? 'selected' : ''}`}
                                         role="button"
                                         tabIndex={0}
-                                        onClick={() => handleColorClick(product.id, 'gray')}
+                                        onClick={() => handleColorClick(product.id, 'white')}
                                     />
                                     <span
-                                        className={`color-circle pink ${selectedColor === 'pink' ? 'selected' : ''}`}
+                                        className={`color-circle pink ${selectedColor === 'rose' ? 'selected' : ''}`}
                                         role="button"
                                         tabIndex={0}
-                                        onClick={() => handleColorClick(product.id, 'pink')}
+                                        onClick={() => handleColorClick(product.id, 'rose')}
                                     />
                                 </div>
                                 <p className="product-metal">{selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)} Gold</p>
                                 <div className="product-rating">
-                                    {'★'.repeat(Math.floor(product.rating))}
-                                    {'☆'.repeat(5 - Math.floor(product.rating))} {product.rating}/5
+                                    {'★'.repeat(Math.floor(rating))}
+                                    {'☆'.repeat(5 - Math.floor(rating))} {rating}/5
                                 </div>
                             </div>
                         );
